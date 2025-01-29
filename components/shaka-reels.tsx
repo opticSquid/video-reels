@@ -1,11 +1,17 @@
 import { ShakaError } from "@/types/shaka-error";
 import { VideoPlayerProps } from "@/types/video-player-props";
 import { createRef, PureComponent, RefObject } from "react";
-import { AiOutlineHeart, AiFillHeart, AiOutlineComment } from "react-icons/ai";
+import {
+  AiOutlineHeart,
+  AiFillHeart,
+  AiOutlineComment,
+  AiFillCamera,
+} from "react-icons/ai";
 import "shaka-player/dist/controls.css";
 const shaka = require("shaka-player/dist/shaka-player.ui.js");
 interface MyComponentState {
   liked: boolean;
+  commented: boolean;
 }
 class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
   videoContainer: RefObject<HTMLDivElement | null>;
@@ -16,6 +22,7 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
     super(props);
     this.state = {
       liked: false,
+      commented: false,
     };
     this.video = createRef();
     this.videoContainer = createRef();
@@ -28,8 +35,18 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
 
     const player = new shaka.Player();
     player.attach(video);
-    new shaka.ui.Overlay(player, videoContainer, video);
-    // const controls = ui.getControls();
+    const uiConfig = {
+      controlPanelElements: ["fullscreen", "overflow_menu"],
+      overflowMenuButtons: ["quality", "playback_rate"],
+      seekBarColors: {
+        base: "rgba(255, 255, 255, 0.3)",
+        buffered: "hsl(35 100% 20%)",
+        played: "hsl(31 94% 72%)",
+      },
+    };
+    const ui = new shaka.ui.Overlay(player, videoContainer, video);
+    ui.configure(uiConfig);
+    ui.getControls();
 
     const onError = (error: ShakaError) => {
       // Log the error.
@@ -58,15 +75,18 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
     }
   }
   toggleLike = () => {
-    this.setState((prevState, props) => ({ liked: !prevState }));
+    this.setState((prevState) => ({ liked: !prevState.liked }));
+  };
+  toggleComment = () => {
+    this.setState((prevState) => ({ commented: !prevState.commented }));
   };
   render() {
     return (
-      <div className="relative w-full h-screen flex justify-center items-center bg-black">
+      <div className="snap-center relative w-full h-screen flex justify-center items-center bg-black">
         <div
           data-shaka-player-container
           ref={this.videoContainer}
-          className="h-full w-auto max-w-full object-cover"
+          className="h-screen w-full max-w-full object-cover z-0"
         >
           <video
             data-shaka-player
@@ -75,9 +95,10 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
             autoPlay={this.autoPlay}
             loop={true}
             muted
+            className="h-screen w-full max-w-full object-cover z-0"
           />
         </div>
-        <div className="absolute bottom-10 right-5 flex flex-col gap-4">
+        <div className="absolute bottom-16 right-3 flex flex-col gap-4 z-10">
           <button onClick={this.toggleLike} className="text-white text-3xl">
             {this.state.liked ? (
               <AiFillHeart className="text-red-500" />
@@ -85,8 +106,12 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
               <AiOutlineHeart />
             )}
           </button>
-          <button className="text-white text-3xl">
-            <AiOutlineComment />
+          <button onClick={this.toggleComment} className="text-white text-3xl">
+            {this.state.commented ? (
+              <AiFillCamera className="text-red-500" />
+            ) : (
+              <AiOutlineComment />
+            )}
           </button>
         </div>
       </div>
