@@ -1,3 +1,4 @@
+"use client";
 import { ShakaError } from "@/types/shaka-error";
 import { VideoPlayerProps } from "@/types/video-player-props";
 import { createRef, PureComponent, RefObject } from "react";
@@ -6,7 +7,9 @@ import {
   AiFillHeart,
   AiOutlineComment,
   AiFillCamera,
+  AiOutlineShareAlt,
 } from "react-icons/ai";
+import { PiShareFill } from "react-icons/pi";
 import "shaka-player/dist/controls.css";
 const shaka = require("shaka-player/dist/shaka-player.ui.js");
 interface MyComponentState {
@@ -82,7 +85,7 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
   };
   render() {
     return (
-      <div className="snap-center relative w-full h-screen flex justify-center items-center bg-black">
+      <div className="relative w-full h-screen flex justify-center items-center bg-black">
         <div
           data-shaka-player-container
           ref={this.videoContainer}
@@ -98,7 +101,7 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
             className="h-screen w-full max-w-full object-cover z-0"
           />
         </div>
-        <div className="absolute bottom-16 right-3 flex flex-col gap-4 z-10">
+        <div className="absolute bottom-16 right-3 flex flex-col space-y-2 gap-4 z-10">
           <button onClick={this.toggleLike} className="text-white text-3xl">
             {this.state.liked ? (
               <AiFillHeart className="text-red-500" />
@@ -112,6 +115,9 @@ class ShakaPlayer extends PureComponent<VideoPlayerProps, MyComponentState> {
             ) : (
               <AiOutlineComment />
             )}
+          </button>
+          <button className="text-white text-3xl">
+            <AiOutlineShareAlt />
           </button>
         </div>
       </div>
